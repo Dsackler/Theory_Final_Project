@@ -1,4 +1,4 @@
-import edge as edge
+from Second_Idea.edge import Edge
 
 
 # https://github.com/meghdadFar/sregex/blob/master/src/s/reg/ex/State.java
@@ -39,11 +39,11 @@ def find_source(self, label):
     source = State()
     for in_link in self.incoming:
         if in_link == label:
-            source = in_link.edge.get_source()
+            source = in_link.Edge.get_source()
     return source
 
 
 def remove_outgoing(self, label):
     for out_link in self.outgoing:
-        if out_link.edge.get_label() == label:
-            self.outgoing.remove(out_link.edge.get_label())
+        if out_link.Edge.get_label() == label:
+            self.outgoing.remove(out_link.Edge.get_label())

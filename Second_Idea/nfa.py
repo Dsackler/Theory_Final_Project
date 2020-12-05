@@ -19,4 +19,13 @@ class NFA:
     def concat(self, label):
         next_state = State.State()
         e = Edge.Edge(self.currentState, next_state, label)
-        self.current_state.state.add_outgoing_edge(e)
+        self.current_state.State.add_outgoing_edge(e)
+        next_state.State.add_incoming_edge(e)
+        next_state.State.make_accept()
+        self.current_state.State.make_not_accept()
+        self.current_state = next_state
+
+    def union(self, temp):
+        new_state = State.State()
+        epsilon = Edge(temp, new_state, "E")
+        temp.

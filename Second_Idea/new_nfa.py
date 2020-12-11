@@ -1,6 +1,7 @@
 import json
 
 
+
 class NFA:
     def __init__(self, description):
         self.transitions = description['transitions']
@@ -26,6 +27,26 @@ class NFA:
             return set(self.transitions[state][symbol])
         else:
             return set()
+class Helper:
+    def sorter(self, dfa_description):
+        for state in dfa_description['transitions'].keys():
+            dfa_description['transitions'][state]['0'] = ''.join(sorted(dfa_description['transitions'][state]['0']))
+            if dfa_description['transitions'][state]['0'] == "":
+                dfa_description['transitions'][state]['0'] = "Dead state"
+            dfa_description['transitions'][state]['1'] = ''.join(sorted(dfa_description['transitions'][state]['1']))
+            if dfa_description['transitions'][state]['1'] == "":
+                dfa_description['transitions'][state]['1'] = "Dead state"
+
+    def find_lambda_moves(self, current_transition, current, dfa_description):
+        lambda_set = set()
+        for state in current_transition[current]['0']:
+            lambda_set = lambda_set.union(NFA.get_lambda_moves(self, state))
+        current_transition[current]['0'] = current_transition[current]['0'].union(lambda_set)
+        lambda_set.clear()
+        for state in current_transition[current]['1']:
+            lambda_set = lambda_set.union(NFA.get_lambda_moves(self, state))
+        current_transition[current]['1'] = current_transition[current]['1'].union(lambda_set)
+        dfa_description['transitions'].update(current_transition)
     
 
 
@@ -52,17 +73,8 @@ def to_dfa(nfa):
             #Get 1 and 0 transitions 
             current_transition[current]['0'] = current_transition[current]['0'].union(NFA.transition(nfa, state, '0'))
             current_transition[current]['1'] = current_transition[current]['1'].union(NFA.transition(nfa, state, '1'))
-            #get lambda moves
-            lambda_set = set()
-            for state in current_transition[current]['0']:
-                lambda_set = lambda_set.union(NFA.get_lambda_moves(nfa, state))
-            current_transition[current]['0'] = current_transition[current]['0'].union(lambda_set)
-            lambda_set.clear()
-            for state in current_transition[current]['1']:
-                lambda_set = lambda_set.union(NFA.get_lambda_moves(nfa, state))
-            current_transition[current]['1'] = current_transition[current]['1'].union(lambda_set)
-            
-            dfa_description['transitions'].update(current_transition)
+            Helper.find_lambda_moves(nfa, current_transition, current, dfa_description) #get lambda moves
+        #append to todo    
         todo.append(''.join(current_transition[current]['0']))
         todo.append(''.join(current_transition[current]['1']))
 
@@ -70,17 +82,7 @@ def to_dfa(nfa):
     for state in dfa_description['transitions']:
         if NFA.is_accept(nfa, state) == True:
             dfa_description['accept_states'].append(''.join(sorted(state)))
-        
-
-    #Sort key names and value names
-    for state in dfa_description['transitions'].keys():
-        
-        dfa_description['transitions'][state]['0'] = ''.join(sorted(dfa_description['transitions'][state]['0']))
-        if dfa_description['transitions'][state]['0'] == "":
-            dfa_description['transitions'][state]['0'] = "Dead state"
-        dfa_description['transitions'][state]['1'] = ''.join(sorted(dfa_description['transitions'][state]['1']))
-        if dfa_description['transitions'][state]['1'] == "":
-            dfa_description['transitions'][state]['1'] = "Dead state"
+    Helper.sorter(nfa, dfa_description) #Sort key names and value names
 
     print(json.dumps(dfa_description, indent=4, sort_keys=False))
     return dfa_description

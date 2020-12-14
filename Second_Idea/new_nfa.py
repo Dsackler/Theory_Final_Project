@@ -1,4 +1,4 @@
-import json
+import copy
 
 
 
@@ -37,7 +37,7 @@ class Helper:
             if dfa_description['transitions'][state]['1'] == "":
                 dfa_description['transitions'][state]['1'] = "Dead state"
 
-    def find_lambda_moves(self, current_transition, current, dfa_description):
+    def append_lambda_moves(self, current_transition, current, dfa_description):
         lambda_set = set()
         for state in current_transition[current]['0']:
             lambda_set = lambda_set.union(NFA.get_lambda_moves(self, state))
@@ -73,7 +73,7 @@ def to_dfa(nfa):
             #Get 1 and 0 transitions 
             current_transition[current]['0'] = current_transition[current]['0'].union(NFA.transition(nfa, state, '0'))
             current_transition[current]['1'] = current_transition[current]['1'].union(NFA.transition(nfa, state, '1'))
-            Helper.find_lambda_moves(nfa, current_transition, current, dfa_description) #get lambda moves
+            Helper.append_lambda_moves(nfa, current_transition, current, dfa_description) #get lambda moves
         #append to todo    
         todo.append(''.join(current_transition[current]['0']))
         todo.append(''.join(current_transition[current]['1']))
@@ -83,9 +83,72 @@ def to_dfa(nfa):
         if NFA.is_accept(nfa, state) == True:
             dfa_description['accept_states'].append(''.join(sorted(state)))
     Helper.sorter(nfa, dfa_description) #Sort key names and value names
-
-    print(json.dumps(dfa_description, indent=4, sort_keys=False))
     return dfa_description
+
+
+def star_close(nfa):
+    dfa_description = {'transitions': {}, 'accept_states': [], 'start': 'S'}
+    dfa_description['accept_states'].append('S')
+    dfa_description['transitions']['S'] = {'λ': [nfa.start]}
+
+    dfa_description['transitions'].update(nfa.transitions)
+
+    for state in nfa.transitions:
+        if state in nfa.accept_states:
+            dfa_description['transitions'][state]['λ'] = ['S']
+    return dfa_description
+            
+
+
+
+def union(nfa1, nfa2):
+    dfa_description = {'transitions': {}, 'accept_states': [], 'start': 'S'}
+
+    dfa_description['transitions'].update(nfa1.transitions)
+    dfa_description['accept_states'].append(nfa1.accept_states)
+
+    nfa2_copy = copy.deepcopy(nfa2)
+    for state in nfa2_copy.transitions:
+        old = nfa2_copy.transitions[state]
+        del nfa2_copy.transitions[state]
+        new = {f'{state}2': old}
+        nfa2_copy.transitions.update(new)
+    
+    inner_transitions = []
+    for updated_state in nfa2_copy.transitions:
+        for label in nfa2_copy.transitions[updated_state]:
+            if len(nfa2_copy.transitions[updated_state][label]) == 1:
+                temp = ''.join(nfa2_copy.transitions[updated_state][label])
+                nfa2_copy.transitions[updated_state][label] = [f'{temp}2']
+            if len(nfa2_copy.transitions[updated_state][label]) > 1:
+                for symbol in nfa2_copy.transitions[updated_state][label]:
+                    temp = f'{symbol}2'
+                    inner_transitions.append(temp)
+                    nfa2_copy.transitions[updated_state][label] = inner_transitions
+
+    new_accept_states = [i for i in nfa1.accept_states]
+    for state in nfa2_copy.accept_states:
+        new_accept_states.append(f'{state}2')
+    nfa2_copy.accept_states = new_accept_states
+
+    dfa_description['transitions'].update(nfa2_copy.transitions)
+    dfa_description['accept_states'] = nfa2_copy.accept_states
+    return dfa_description
+                    
+            
+
+    
+
+
+    
+    
+
+
+
+    
+
+
+
 
 
 

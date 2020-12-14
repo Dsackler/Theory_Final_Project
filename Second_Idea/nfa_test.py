@@ -1,4 +1,4 @@
-from new_nfa import NFA, to_dfa
+from new_nfa import NFA, to_dfa, union, star_close
 
 
 test_machines = {
@@ -12,9 +12,7 @@ test_machines = {
             },
             'accept_states': [],
             'start': 'S'
-        },
-        'accepts': ['100'],
-        'rejects': ['001']
+        }
     },
     'lambda_test': {
         'description': {
@@ -41,9 +39,7 @@ test_machines = {
             },
             'accept_states': ['A', 'C'],
             'start': 'S'
-        },
-        'accepts': [],
-        'rejects': ['01', '10']
+        }
     },
     'machine1': {
         'description': {
@@ -66,9 +62,7 @@ test_machines = {
             },
             'accept_states': ['K'],
             'start': 'H'
-        },
-        'accepts': [],
-        'rejects': []
+        }
     },
     'machine2': {
         'description': {
@@ -87,9 +81,7 @@ test_machines = {
             },
             'accept_states': ['C'],
             'start': 'A'
-        },
-        'accepts': [],
-        'rejects': []
+        }
     },
     'machine3': {
         'description': {
@@ -116,9 +108,7 @@ test_machines = {
             },
             'accept_states': ['C', 'E'],
             'start': 'A'
-        },
-        'accepts': [],
-        'rejects': []
+        }
     }
 }
 
@@ -239,4 +229,35 @@ def test_machine3():
             
         ],
         "start": "ABEF"
+    }
+
+def test_union():
+    nfa1 = NFA(test_machines['machine3']['description'])
+    nfa2 = NFA(test_machines['machine2']['description'])
+    assert union(nfa1, nfa2) == {'transitions': {
+            'A': {'λ': ['E', 'F', 'B']}, 
+            'E': {'0': ['E'], '1': ['F']}, 
+            'F': {'0': ['E'], '1': ['F']}, 
+            'B': {'0': ['B'], '1': ['C']}, 
+            'C': {'0': ['B'], '1': ['C']}, 
+            'A2': {'1': ['B2']}, 
+            'B2': {'0': ['B2'], '1': ['B2', 'C2']}, 
+            'C2': {}
+        }, 
+        'accept_states': ['C', 'E', 'C2'], 
+        'start': 'S'
+    }
+
+def test_kleen_closure():
+    nfa = NFA(test_machines['machine3']['description'])
+    assert star_close(nfa) == {'transitions': {
+            'S': {'λ': ['A']}, 
+            'A': {'λ': ['E', 'F', 'B']}, 
+            'E': {'0': ['E'], '1': ['F'], 'λ': ['S']}, 
+            'F': {'0': ['E'], '1': ['F']}, 
+            'B': {'0': ['B'], '1': ['C']}, 
+            'C': {'0': ['B'], '1': ['C'], 'λ': ['S']}
+        }, 
+        'accept_states': ['S'], 
+        'start': 'S'
     }

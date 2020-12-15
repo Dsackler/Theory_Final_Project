@@ -1,4 +1,4 @@
-from new_nfa import NFA, to_dfa, union, star_close
+from new_nfa import NFA, to_dfa, union, star_close, concatenate
 
 
 test_machines = {
@@ -107,6 +107,56 @@ test_machines = {
                 }
             },
             'accept_states': ['C', 'E'],
+            'start': 'A'
+        }
+    },
+    'machine4': {
+        'description': {
+            'transitions': {
+                'A': {
+                    '0': ['B']
+                },
+                'B': {
+                    '1': ['C']
+                },
+                'C': {
+                    '0': ['D']
+                },
+                'D': {
+                    '0': ['D'],
+                    '1': ['E']
+                },
+                'E': {
+                    '0': ['D'],
+                    '1': ['F']
+                },
+                'F': {
+                    '0': ['F'],
+                    '1': ['F']
+                }
+            },
+            'accept_states': ['F'],
+            'start': 'A'
+        }
+    },
+    'machine5': {
+        'description': {
+            'transitions': {
+                'A': {
+                    '1': ['B']
+                },
+                'B': {
+                    'λ': ['C'],
+                    '0': ['D']
+                },
+                'C': {
+
+                },
+                'D': {
+
+                }
+            },
+            'accept_states': ['C', 'D'],
             'start': 'A'
         }
     }
@@ -260,4 +310,23 @@ def test_kleen_closure():
         }, 
         'accept_states': ['S'], 
         'start': 'S'
+    }
+
+def test_concat():
+    nfa1 = NFA(test_machines['machine4']['description'])
+    nfa2 = NFA(test_machines['machine5']['description'])
+    assert concatenate(nfa1, nfa2) == {'transitions': {
+            'A': {'0': ['B']}, 
+            'B': {'1': ['C']}, 
+            'C': {'0': ['D']}, 
+            'D': {'0': ['D'], '1': ['E']}, 
+            'E': {'0': ['D'], '1': ['F']}, 
+            'F': {'0': ['F'], '1': ['F'], 'λ': ['A2']}, 
+            'A2': {'1': ['B2']}, 
+            'B2': {'λ': ['C2'], '0': ['D2']}, 
+            'C2': {}, 
+            'D2': {}
+        }, 
+        'accept_states': ['C2', 'D2'], 
+        'start': 'A'
     }

@@ -134,8 +134,50 @@ def union(nfa1, nfa2):
     dfa_description['transitions'].update(nfa2_copy.transitions)
     dfa_description['accept_states'] = nfa2_copy.accept_states
     return dfa_description
-                    
-            
+
+
+
+def concatenate(nfa1, nfa2):
+    dfa_description = {'transitions': {}, 'accept_states': [], 'start': ''}
+    dfa_description['transitions'].update(nfa1.transitions) 
+    dfa_description['start'] = nfa1.start
+    
+    nfa2_copy = copy.deepcopy(nfa2)
+    for state in nfa2.transitions:
+        old = nfa2_copy.transitions[state]
+        del nfa2_copy.transitions[state]
+        new = {f'{state}2': old}
+        nfa2_copy.transitions.update(new)
+    
+    inner_transitions = []
+    for updated_state in nfa2_copy.transitions:
+        for label in nfa2_copy.transitions[updated_state]:
+            if len(nfa2_copy.transitions[updated_state][label]) == 1:
+                temp = ''.join(nfa2_copy.transitions[updated_state][label])
+                nfa2_copy.transitions[updated_state][label] = [f'{temp}2']
+            if len(nfa2_copy.transitions[updated_state][label]) > 1:
+                for symbol in nfa2_copy.transitions[updated_state][label]:
+                    temp = f'{symbol}2'
+                    inner_transitions.append(temp)
+                    nfa2_copy.transitions[updated_state][label] = inner_transitions
+
+    dfa_copy = copy.deepcopy(dfa_description)
+    for state in dfa_description['transitions']:
+        if state in nfa1.accept_states and 'λ' in dfa_description['transitions'][state]:
+            dfa_copy['transitions'][state]['λ'].append(f'{nfa2_copy.start}2')
+        if state in nfa1.accept_states and 'λ' not in dfa_description['transitions'][state]:
+            dfa_copy['transitions'][state].update({'λ': [f'{nfa2_copy.start}2']})
+
+    
+    dfa_copy['transitions'].update(nfa2_copy.transitions)
+
+    for state in nfa2_copy.accept_states:
+        dfa_copy['accept_states'].append(f'{state}2')
+
+    return dfa_copy
+    
+    
+    
 
     
 

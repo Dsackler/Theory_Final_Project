@@ -296,6 +296,7 @@ def test_union():
 
 def test_kleen_closure():
     nfa = NFA(test_machines['machine3']['description'])
+    nfa2 = NFA(test_machines['machine4']['description'])
     assert star_close(nfa) == {'transitions': {
             'S': {'λ': ['A']}, 
             'A': {'λ': ['E', 'F', 'B']}, 
@@ -305,6 +306,18 @@ def test_kleen_closure():
             'C': {'0': ['B'], '1': ['C'], 'λ': ['S']}
         }, 
         'accept_states': ['S'], 
+        'start': 'S'
+    }
+    assert star_close(nfa2) == {'transitions': {
+            'S': {'λ': ['A']}, 
+            'A': {'0': ['B']},
+            'B': {'1': ['C'] },
+            'C': {'0': ['D']},
+            'D': { '0': ['D'],'1': ['E']},
+            'E': {'0': ['D'], '1': ['F']},
+            'F': {'0': ['F'],'1': ['F'], 'λ': ['S']}
+        },
+        'accept_states': ['S'],
         'start': 'S'
     }
 

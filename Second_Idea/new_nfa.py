@@ -89,12 +89,13 @@ def to_dfa(nfa):
 def star_close(nfa):
     dfa_description = {'transitions': {}, 'accept_states': [], 'start': 'S'}
     dfa_description['accept_states'].append('S')
-    dfa_description['transitions']['S'] = {'λ': [nfa.start]}
+    nfa_copy = copy.deepcopy(nfa)
+    dfa_description['transitions']['S'] = {'λ': [nfa_copy.start]}
+    dfa_description['transitions'].update(nfa_copy.transitions)
 
-    dfa_description['transitions'].update(nfa.transitions)
-
-    for state in nfa.transitions:
-        if state in nfa.accept_states:
+    
+    for state in nfa_copy.transitions:
+        if state in nfa_copy.accept_states:
             dfa_description['transitions'][state]['λ'] = ['S']
     return dfa_description
             

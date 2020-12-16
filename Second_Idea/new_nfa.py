@@ -173,7 +173,6 @@ def concatenate(nfa1, nfa2):
 
     for state in nfa2_copy.accept_states:
         dfa_copy['accept_states'].append(f'{state}2')
-
     return dfa_copy
     
     

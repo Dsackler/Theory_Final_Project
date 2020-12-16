@@ -171,7 +171,7 @@ def test_transition():
     # VIM bindings
 
 
-def test_lambda():
+def test_to_dfa():
     nfa = NFA(test_machines['lambda_test']['description'])
     assert to_dfa(nfa) == {
     "transitions": {
@@ -204,10 +204,8 @@ def test_lambda():
     ],
     "start": "ACS"
 }
-
-def test_machine1():
-    nfa = NFA(test_machines['machine1']['description'])
-    assert to_dfa(nfa) == {"transitions": {
+    nfa1 = NFA(test_machines['machine1']['description'])
+    assert to_dfa(nfa1) == {"transitions": {
             "H": {
                 "0": "IK",
                 "1": "Dead state"
@@ -233,9 +231,8 @@ def test_machine1():
         "start": "H"
     }
 
-def test_machine2():
-    nfa = NFA(test_machines['machine2']['description'])
-    assert to_dfa(nfa) == {"transitions": {
+    nfa2 = NFA(test_machines['machine2']['description'])
+    assert to_dfa(nfa2) == {"transitions": {
             "A": {
                 "0": "Dead state",
                 "1": "B"
@@ -255,9 +252,8 @@ def test_machine2():
         "start": "A"
     }
 
-def test_machine3():
-    nfa = NFA(test_machines['machine3']['description'])
-    assert to_dfa(nfa) == {"transitions": {
+    nfa3 = NFA(test_machines['machine3']['description'])
+    assert to_dfa(nfa3) == {"transitions": {
             "ABEF": {
                 "0": "BE",
                 "1": "CF"
@@ -328,5 +324,20 @@ def test_concat():
             'D2': {}
         }, 
         'accept_states': ['C2', 'D2'], 
+        'start': 'A'
+    }
+    assert concatenate(nfa2, nfa1) == {'transitions': {
+            'A': {'1': ['B']}, 
+            'B': {'λ': ['C'], '0': ['D']}, 
+            'C': {'λ': ['A2']}, 
+            'D': {'λ': ['A2']}, 
+            'A2': {'0': ['B2']}, 
+            'B2': {'1': ['C2']}, 
+            'C2': {'0': ['D2']}, 
+            'D2': {'0': ['D2'], '1': ['E2']}, 
+            'E2': {'0': ['D2'], '1': ['F2']}, 
+            'F2': {'0': ['F2'], '1': ['F2']}
+        }, 
+        'accept_states': ['F2'], 
         'start': 'A'
     }

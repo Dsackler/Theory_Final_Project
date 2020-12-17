@@ -168,8 +168,6 @@ def test_transition():
     assert nfa.transition('S', '1') == {'S'}
     assert nfa.transition('A', '0') == set()
 
-    # VIM bindings
-
 
 def test_to_dfa():
     nfa = NFA(test_machines['lambda_test']['description'])

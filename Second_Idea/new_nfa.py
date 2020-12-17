@@ -1,7 +1,5 @@
 import copy
 
-
-
 class NFA:
     def __init__(self, description):
         self.transitions = description['transitions']
@@ -72,7 +70,6 @@ class Helper:
                         self.transitions[updated_state][label] = inner_transitions
 
 
-
 def to_dfa(nfa):
     dfa_description = {'transitions': {}, 'accept_states': [], 'start': ''}
 
@@ -112,18 +109,17 @@ def star_close(nfa):
     dfa_description = {'transitions': {}, 'accept_states': [], 'start': 'S'}
     dfa_description['accept_states'].append('S')
     nfa_copy = copy.deepcopy(nfa)
+    #Add start state and lambda to original start
     dfa_description['transitions']['S'] = {'λ': [nfa_copy.start]}
     dfa_description['transitions'].update(nfa_copy.transitions)
 
     
     for state in nfa_copy.transitions:
         if state in nfa_copy.accept_states:
+            #lambda back to start
             dfa_description['transitions'][state]['λ'] = ['S']
     return dfa_description
             
-
-
-
 def union(nfa1, nfa2):
     dfa_description = {'transitions': {}, 'accept_states': [], 'start': 'S'}
     dfa_description['transitions']['S'] = {'λ': [nfa1.start, f'{nfa2.start}2']}
@@ -150,7 +146,6 @@ def union(nfa1, nfa2):
     dfa_description['transitions'].update(nfa2_copy.transitions)
     dfa_description['accept_states'] = nfa2_copy.accept_states
     return dfa_description
-
 
 
 def concatenate(nfa1, nfa2):
@@ -181,27 +176,3 @@ def concatenate(nfa1, nfa2):
         dfa_copy['accept_states'].append(f'{state}2')
     return dfa_copy
     
-    
-    
-
-    
-
-
-    
-    
-
-
-
-    
-
-
-
-
-
-
-
-# Get accept funciton working
-# Test
-# Write union nfa's, concat nfa's, star closure
-# Test
-# https://github.com/neogeny/TatSu for context free grammer parsing for regular expression

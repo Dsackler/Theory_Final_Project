@@ -278,9 +278,11 @@ def test_to_dfa():
     }
 
 def test_union():
-    nfa1 = NFA(test_machines['machine3']['description'])
+    nfa3 = NFA(test_machines['machine3']['description'])
     nfa2 = NFA(test_machines['machine2']['description'])
-    assert union(nfa1, nfa2) == {'transitions': {
+    nfa1 = NFA(test_machines['machine1']['description'])
+    assert union(nfa3, nfa2) == {'transitions': {
+            'S': {'λ': ['A', 'A2']}, 
             'A': {'λ': ['E', 'F', 'B']}, 
             'E': {'0': ['E'], '1': ['F']}, 
             'F': {'0': ['E'], '1': ['F']}, 
@@ -289,8 +291,23 @@ def test_union():
             'A2': {'1': ['B2']}, 
             'B2': {'0': ['B2'], '1': ['B2', 'C2']}, 
             'C2': {}
-        }, 
+            }, 
         'accept_states': ['C', 'E', 'C2'], 
+        'start': 'S'
+    }
+    assert union(nfa1, nfa3) == {'transitions': {
+            'S': {'λ': ['H', 'A2']}, 
+            'H': {'0': ['I']}, 
+            'I': {'0': ['J'], 'λ': ['K']}, 
+            'J': {'0': ['K']}, 
+            'K': {'0': ['K'], '1': ['K']}, 
+            'A2': {'λ': ['E2', 'F2', 'B2']}, 
+            'E2': {'0': ['E2'], '1': ['F2']}, 
+            'F2': {'0': ['E2'], '1': ['F2']}, 
+            'B2': {'0': ['B2'], '1': ['C2']}, 
+            'C2': {'0': ['B2'], '1': ['C2']}
+            }, 
+        'accept_states': ['K', 'C2', 'E2'], 
         'start': 'S'
     }
 
